@@ -1,0 +1,318 @@
+================================================================================
+  SNAKE GAME - COMPLETE DOCUMENTATION
+================================================================================
+
+Project     : snake-game-creation
+Framework   : Next.js 16 (App Router) + React 19 + TypeScript
+Styling     : Tailwind CSS 4 + shadcn/ui
+Language    : TypeScript (strict mode, ES6 target)
+Build tool  : Next.js (powered by Turbopack)
+Package mgr : npm / pnpm
+Entry point : app/page.tsx
+
+================================================================================
+  1. PROJECT STRUCTURE
+================================================================================
+
+snake-game/
+  app/
+    layout.tsx          Root layout (fonts, metadata, analytics)
+    page.tsx            Entry page -> renders <SnakeGame />
+    globals.css         Tailwind imports + OKLCH color theme (dark mode)
+  components/
+    snake-game.tsx      Main UI component (stats, overlays, D-pad)
+    game-board.tsx      Canvas-based renderer (grid, food, snake animation)
+    use-snake-game.ts   Core game logic hook (state, loop, collisions)
+    use-sound-effects.ts Side-effect hook for audio triggers
+    ui/
+      button.tsx        shadcn/ui button (Base UI + CVA variants)
+  lib/
+    utils.ts            cn() helper (clsx + tailwind-merge)
+    sounds.ts           Web Audio API synthesized sound effects
+  public/               Static assets (icons)
+  Config files:
+    next.config.mjs     Next config (TS errors ignored, images unoptimized)
+    tsconfig.json       TypeScript config (strict, @/ path alias)
+    package.json        Dependencies & scripts
+    postcss.config.mjs  PostCSS with @tailwindcss/postcss
+    components.json     shadcn/ui configuration
+
+
+================================================================================
+  2. COMPONENT ARCHITECTURE
+================================================================================
+
+  app/page.tsx
+      |
+      v
+  SnakeGame (components/snake-game.tsx)
+      |
+      +-- GameBoard (components/game-board.tsx)       [canvas renderer]
+      +-- useSnakeGame (components/use-snake-game.ts)  [game state hook]
+      +-- useSoundEffects (components/use-sound-effects.ts) [audio hook]
+      +-- Button (components/ui/button.tsx)            [reusable button]
+      +-- Stat (inline component)                      [score/level/best cards]
+      +-- Overlay (inline component)                   [idle/paused/game-over]
+      +-- DirButton (inline component)                 [touch D-pad buttons]
+
+
+================================================================================
+  3. GAME LOGIC (use-snake-game.ts)
+================================================================================
+
+  3.1 GRID & CONSTANTS
+  --------------------
+  - GRID_SIZE = 20 (20x20 grid, cells indexed 0-19)
+  - Point = { x: number, y: number }
+  - Direction = "up" | "down" | "left" | "right"
+  - GameStatus = "idle" | "running" | "paused" | "over"
+
+  3.2 DIFFICULTY LEVELS (6 tiers)
+  --------------------------------
+  Level 0: Sprout - 180ms per step
+  Level 1: Vine   - 150ms per step
+  Level 2: Garden - 125ms per step
+  Level 3: Jungle - 102ms per step
+  Level 4: Wild   - 82ms  per step
+  Level 5: Venom  - 66ms  per step
+
+  Score thresholds to advance:
+    Level 0: 0 points
+    Level 1: 4 points
+    Level 2: 9 points
+    Level 3: 15 points
+    Level 4: 22 points
+    Level 5: 30 points
+
+  3.3 INITIAL STATE
+  -----------------
+  - Snake: 3 segments at [(8,10), (7,10), (6,10)], facing RIGHT
+  - Food: random position NOT overlapping snake
+  - Score: 0
+  - Status: "idle"
+  - Direction: "right"
+  - Segment colors: 3 initial OKLCH colors derived from seeds [0,1,2]
+  - Food color: OKLCH from seed 3
+
+  3.4 DIRECTION QUEUING
+  ---------------------
+  - Only ONE direction change is queued per game step
+  - Attempting to reverse (e.g., right -> left) is ignored
+  - Attempting to set the same direction is ignored
+  - Queued direction is consumed at the beginning of the next step()
+  - This prevents the snake from reversing into itself on rapid key taps
+
+  3.5 GAME LOOP (requestAnimationFrame)
+  --------------------------------------
+  - Uses rAF with fixed-timestep checking
+  - On each frame: if (time - lastStep >= speed) then step()
+  - Speed depends on current difficulty level
+  - Loop runs continuously, but step() only executes when enough time passes
+  - When paused/idle/over, lastStep resets to current time (avoids catch-up steps)
+
+  3.6 STEP FUNCTION (core game tick)
+  -----------------------------------
+  1. Consume queued direction (if valid)
+  2. Calculate new head position using direction vector
+  3. WALL COLLISION: if head is outside 0..19, game over
+  4. FOOD CHECK: if head == food position, snake grows (no tail removal)
+  5. SELF COLLISION: if new head overlaps body, game over
+  6. Update snake array: [newHead, ...body]
+  7. If food eaten: +1 score, randomize new food, update colors
+
+  3.7 COLOR SYSTEM
+  ----------------
+  - Each snake segment gets a unique color
+  - Colors are generated from incrementing seeds using OKLCH
+  - Formula: oklch(0.55 0.14 <seed * 47 % 360>)
+  - Food color: oklch(0.7 0.2 <seed * 47 + 150 % 360>)
+  - When food is eaten, the food's color is prepended to the snake's segment colors
+  - This means the snake's head color matches the last food eaten
+
+  3.8 HIGH SCORE
+  --------------
+  - Persisted in localStorage under key "snake-high-score"
+  - Loaded on mount
+  - Updated when game ends and current score > stored high score
+
+  3.9 KEYBOARD CONTROLS
+  ----------------------
+  Arrow keys / WASD -> change direction
+  Space bar          -> Start game / Pause / Resume / Restart (context-dependent)
+
+
+================================================================================
+  4. CANVAS RENDERER (game-board.tsx)
+================================================================================
+
+  4.1 RENDERING
+  -------------
+  - Uses HTML5 Canvas 2D context
+  - HiDPI support: canvas sized at clientWidth * min(devicePixelRatio, 2)
+  - ResizeObserver keeps canvas in sync with its CSS size
+  - Continuous rAF-based draw loop (separate from game logic loop)
+
+  4.2 GRID
+  --------
+  - Background fill with --card color
+  - Subtle grid lines at --border with 40% opacity
+  - Cell size = canvas width / GRID_SIZE
+
+  4.3 FOOD (pulsing glow)
+  -----------------------
+  - Pulse animation: sin(time / 220) modulates padding between 0.16 and 0.22 of cell
+  - Rounded rectangle with 30% corner radius
+  - Outer glow via canvas shadowBlur
+  - Color matches foodColorRef (updated when new food spawns)
+
+  4.4 SNAKE (smooth interpolation)
+  --------------------------------
+  - Interpolation between previous and current positions using elapsed time
+  - t = min(elapsed / speed, 1) -- lerp factor
+  - Large position jumps (>1 cell) are clamped to prevent wrap-around artifacts
+  - Segments shrink progressively toward tail (shrink = 1 - (i / length) * 0.18)
+  - Each segment has its own color from segmentColors array
+  - Head has extra glow (shadowBlur) in its own color
+  - Head has two eyes (small circles) positioned at upper-left and upper-right
+
+  4.5 ROUNDED RECTANGLES
+  ----------------------
+  - Custom roundRect() helper using arcTo for smooth corners
+  - Radius clamped to min(r, w/2, h/2) to avoid degenerate shapes
+
+
+================================================================================
+  5. SOUND EFFECTS (lib/sounds.ts & use-sound-effects.ts)
+================================================================================
+
+  5.1 ARCHITECTURE
+  ----------------
+  - All sounds generated via Web Audio API (no audio files)
+  - Shared AudioContext created lazily on first sound play
+  - If AudioContext is suspended (browser autoplay policy), it auto-resumes
+
+  5.2 SOUND TYPES
+  ---------------
+  playEat()       - Square wave: 500Hz -> 1000Hz over 80ms, 150ms total
+  playGameOver()  - Sawtooth: 350Hz -> 60Hz over 600ms, descending sweep
+  playLevelUp()   - 4 ascending square wave notes (523, 659, 784, 1047 Hz)
+  playStart()     - 3 ascending square wave notes (440, 554, 659 Hz)
+  playPause()     - Short square wave blip at 280Hz, 60ms
+  playResume()    - Short square wave blip at 500Hz, 60ms
+
+  5.3 TRIGGER LOGIC (use-sound-effects.ts)
+  ----------------------------------------
+  - Watches status, score, and level changes via useEffect
+  - Uses refs to track previous values for change detection
+  - Triggers:
+    idle -> running  : playStart()
+    * -> paused      : playPause()
+    paused -> running: playResume()
+    * -> over        : playGameOver()
+    score increase   : playEat()
+    level increase   : playLevelUp()
+
+
+================================================================================
+  6. UI COMPONENTS (snake-game.tsx)
+================================================================================
+
+  6.1 LAYOUT
+  ----------
+  - Full screen: flex column, centered, min-h-dvh
+  - Header: "Snake" title + subtitle
+  - Stats row: Score | Level (# + label) | Best (with trophy icon)
+  - GameBoard (with overlay when not running)
+  - Next level progress indicator (while running)
+  - Pause button (while running)
+  - D-pad for touch devices (hidden on sm+ screens)
+  - Keyboard hint (hidden on small screens)
+
+  6.2 OVERLAY STATES
+  ------------------
+  - IDLE: "Ready to slither?" + controls hint + "Start game" button
+  - PAUSED: "Paused" + "Take a breath." + "Resume" button
+  - GAME OVER: "Game Over" + score message + "Play again" button
+  - Overlay has backdrop-blur for visual separation
+
+  6.3 TOUCH CONTROLS (D-pad)
+  --------------------------
+  - 3x3 CSS grid layout with directional buttons at up/left/right/down
+  - Visible only on small screens (hidden with sm:hidden)
+  - Each button calls game.changeDirection with the respective direction
+  - Arrow icon buttons with active:scale-95 press effect
+
+  6.4 STAT CARD
+  -------------
+  - Border + rounded + card background
+  - Uppercase label (11px) + value in monospace font
+
+
+================================================================================
+  7. DEPENDENCIES
+================================================================================
+
+  Production:
+    @base-ui/react        ^1.5.0    (Button primitive)
+    @vercel/analytics     1.6.1     (Analytics in production)
+    class-variance-authority ^0.7.1 (Button variants)
+    clsx                  ^2.1.1    (Class merging)
+    lucide-react          ^1.16.0   (Icons: arrows, pause, play, trophy)
+    next                  16.2.6    (Framework)
+    react                 ^19       (UI library)
+    react-dom             ^19       (DOM renderer)
+    shadcn                ^4.8.0    (UI toolkit)
+    tailwind-merge        ^3.3.1    (Class deduplication)
+    tw-animate-css        ^1.4.0    (Tailwind animation CSS)
+
+  Dev:
+    @tailwindcss/postcss  ^4.2.0    (PostCSS plugin for Tailwind 4)
+    @types/node           ^24       (Node types)
+    @types/react          ^19       (React types)
+    @types/react-dom      ^19       (ReactDOM types)
+    postcss               ^8.5      (CSS processor)
+    tailwindcss           ^4.2.0    (Utility-first CSS)
+    typescript            5.7.3     (Type checking)
+
+
+================================================================================
+  8. HOW TO RUN
+================================================================================
+
+  # Development server:
+  npm run dev
+  # Opens http://localhost:3000 automatically
+
+  # Build for production:
+  npm run build
+
+  # Start production server:
+  npm run start
+
+  # Lint:
+  npm run lint
+
+
+================================================================================
+  9. KEY FEATURES SUMMARY
+================================================================================
+
+  - 20x20 grid with canvas rendering
+  - 6 difficulty levels (speeds from 180ms to 66ms per step)
+  - Smooth cell-to-cell interpolation for snake movement
+  - Unique segment coloring based on food consumed
+  - Pulsing food with glow effect
+  - Snake eyes on head segment
+  - Progressive segment tapering (head largest, tail smallest)
+  - High score persistence via localStorage
+  - 6 synthesized sound effects (no audio files needed)
+  - Full keyboard (arrows + WASD) and touch (D-pad) controls
+  - Space bar for start/pause/resume/restart
+  - Overlay screens for idle, paused, and game-over states
+  - Dark mode OKLCH color theme
+  - HiDPI canvas support
+  - Responsive layout (mobile-first with touch controls)
+
+================================================================================
+  END OF DOCUMENTATION
+================================================================================
