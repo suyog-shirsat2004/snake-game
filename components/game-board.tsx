@@ -11,13 +11,14 @@ type GameBoardProps = {
   /** ms per step — used to time the smooth interpolation between cells */
   speed: number
   paused: boolean
+  torchEnabled: boolean
 }
 
 function cssVar(name: string) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
 }
 
-export function GameBoard({ snake, food, segmentColors, foodColor, speed, paused }: GameBoardProps) {
+export function GameBoard({ snake, food, segmentColors, foodColor, speed, paused, torchEnabled }: GameBoardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const snakeRef = useRef<Point[]>(snake)
   const prevSnakeRef = useRef<Point[]>(snake)
@@ -27,9 +28,11 @@ export function GameBoard({ snake, food, segmentColors, foodColor, speed, paused
   const pausedRef = useRef<boolean>(paused)
   const segmentColorsRef = useRef<string[]>(segmentColors)
   const foodColorRef = useRef<string>(foodColor)
+  const torchRef = useRef<boolean>(torchEnabled)
 
   useEffect(() => { segmentColorsRef.current = segmentColors }, [segmentColors])
   useEffect(() => { foodColorRef.current = foodColor }, [foodColor])
+  useEffect(() => { torchRef.current = torchEnabled }, [torchEnabled])
 
   // Capture the moment the snake advances so we can interpolate from old → new.
   useEffect(() => {
@@ -152,6 +155,18 @@ export function GameBoard({ snake, food, segmentColors, foodColor, speed, paused
           ctx.arc(cx + o, cy - o, r, 0, Math.PI * 2)
           ctx.fill()
         }
+      }
+
+      // Torch: dark overlay with radial gradient around snake's head.
+      if (torchRef.current) {
+        const head = snakeRef.current[0]
+        const hx = head.x * cell + cell / 2
+        const hy = head.y * cell + cell / 2
+        const gradient = ctx.createRadialGradient(hx, hy, cell * 0.5, hx, hy, cell * 5)
+        gradient.addColorStop(0, "transparent")
+        gradient.addColorStop(1, "rgba(0,0,0,0.85)")
+        ctx.fillStyle = gradient
+        ctx.fillRect(0, 0, sizePx, sizePx)
       }
 
       raf = requestAnimationFrame(draw)

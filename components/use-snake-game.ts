@@ -86,6 +86,7 @@ export function useSnakeGame() {
   const [highScore, setHighScore] = useState(0)
   const [segmentColors, setSegmentColors] = useState<string[]>(INITIAL_COLORS)
   const [foodColor, setFoodColor] = useState<string>(() => foodColorFromSeed(3))
+  const [torchEnabled, setTorchEnabled] = useState(false)
 
   // Refs mirror state so the game loop reads fresh values without re-subscribing.
   const directionRef = useRef<Direction>("right")
@@ -135,6 +136,10 @@ export function useSnakeGame() {
       }
       return prev
     })
+  }, [])
+
+  const toggleTorch = useCallback(() => {
+    setTorchEnabled((prev) => !prev)
   }, [])
 
   const changeDirection = useCallback((next: Direction) => {
@@ -258,6 +263,7 @@ export function useSnakeGame() {
     food,
     segmentColors,
     foodColor,
+    torchEnabled,
     direction,
     status,
     score,
@@ -268,6 +274,7 @@ export function useSnakeGame() {
     start: reset,
     reset,
     togglePause,
+    toggleTorch,
     changeDirection,
   }
 }

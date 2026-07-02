@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Pause, Play, RotateCcw, Trophy } from "lucide-react"
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Flashlight, FlashlightOff, Pause, Play, RotateCcw, Trophy } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { GameBoard } from "./game-board"
 import { type Direction, useSnakeGame } from "./use-snake-game"
@@ -8,7 +8,7 @@ import { useSoundEffects } from "./use-sound-effects"
 
 export function SnakeGame() {
   const game = useSnakeGame()
-  const { status, score, highScore, level, difficulty, nextThreshold, segmentColors, foodColor } = game
+  const { status, score, highScore, level, difficulty, nextThreshold, segmentColors, foodColor, torchEnabled } = game
 
   useSoundEffects(status, score, level)
 
@@ -40,7 +40,7 @@ export function SnakeGame() {
 
       {/* Board + overlays */}
       <div className="relative w-full max-w-md">
-        <GameBoard snake={game.snake} food={game.food} segmentColors={segmentColors} foodColor={foodColor} speed={difficulty.speed} paused={status === "paused"} />
+        <GameBoard snake={game.snake} food={game.food} segmentColors={segmentColors} foodColor={foodColor} speed={difficulty.speed} paused={status === "paused"} torchEnabled={torchEnabled} />
 
         {status !== "running" && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-xl bg-background/80 backdrop-blur-sm">
@@ -87,9 +87,15 @@ export function SnakeGame() {
       {/* Controls */}
       <div className="flex w-full max-w-md flex-col items-center gap-4">
         {status === "running" && (
-          <Button variant="secondary" size="sm" onClick={game.togglePause} className="gap-2">
-            <Pause className="h-4 w-4" /> Pause
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="secondary" size="sm" onClick={game.togglePause} className="gap-2">
+              <Pause className="h-4 w-4" /> Pause
+            </Button>
+            <Button variant="secondary" size="sm" onClick={game.toggleTorch} className="gap-2">
+              {torchEnabled ? <FlashlightOff className="h-4 w-4" /> : <Flashlight className="h-4 w-4" />}
+              {torchEnabled ? "Torch Off" : "Torch"}
+            </Button>
+          </div>
         )}
 
         {/* On-screen D-pad for touch devices */}
