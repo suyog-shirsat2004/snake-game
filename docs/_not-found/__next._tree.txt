@@ -1,2 +1,2 @@
-:HL["/snake-game/_next/static/chunks/0vkdkk_cyhvb2.css","style"]
-0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"/_not-found","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"ifV592LnEcNHRV_X5AL9l"}
+:HL["/snake-game/_next/static/chunks/0yta_1814lr1o.css","style"]
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"/_not-found","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"Qn397_aFtj4KQ59oePkSc"}

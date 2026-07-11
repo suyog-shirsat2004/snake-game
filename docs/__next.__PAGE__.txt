@@ -1,6 +1,6 @@
 1:"$Sreact.fragment"
-2:I[54046,["/snake-game/_next/static/chunks/0v90e52bsza-c.js","/snake-game/_next/static/chunks/0dbhjjzl8qfwv.js","/snake-game/_next/static/chunks/0n00epxl-g4n9.js"],"SnakeGame"]
+2:I[54046,["/snake-game/_next/static/chunks/0v90e52bsza-c.js","/snake-game/_next/static/chunks/0dbhjjzl8qfwv.js","/snake-game/_next/static/chunks/0jiar76-xp9jv.js"],"SnakeGame"]
 3:I[97367,["/snake-game/_next/static/chunks/0v90e52bsza-c.js","/snake-game/_next/static/chunks/0dbhjjzl8qfwv.js"],"OutletBoundary"]
 4:"$Sreact.suspense"
-0:{"rsc":["$","$1","c",{"children":[["$","$L2",null,{}],[["$","script","script-0",{"src":"/snake-game/_next/static/chunks/0n00epxl-g4n9.js","async":true}]],["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"ifV592LnEcNHRV_X5AL9l"}
+0:{"rsc":["$","$1","c",{"children":[["$","$L2",null,{}],[["$","script","script-0",{"src":"/snake-game/_next/static/chunks/0jiar76-xp9jv.js","async":true}]],["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"Qn397_aFtj4KQ59oePkSc"}
 5:null

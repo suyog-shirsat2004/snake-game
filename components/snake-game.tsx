@@ -13,18 +13,18 @@ export function SnakeGame() {
   useSoundEffects(status, score, level)
 
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center gap-6 p-4">
+    <main className="flex min-h-dvh flex-col items-center justify-between gap-3 p-3 sm:gap-6 sm:p-4">
       <header className="text-center">
-        <h1 className="text-balance font-mono text-3xl font-bold tracking-tight text-primary sm:text-4xl">
+        <h1 className="text-balance font-mono text-2xl font-bold tracking-tight text-primary sm:text-4xl">
           Snake
         </h1>
-        <p className="mt-1 text-pretty text-sm text-muted-foreground">
+        <p className="mt-1 text-pretty text-xs text-muted-foreground sm:text-sm">
           Eat the glowing food, grow longer, and don&apos;t bite yourself.
         </p>
       </header>
 
       {/* Stat row */}
-      <div className="grid w-full max-w-md grid-cols-3 gap-3">
+      <div className="grid w-full max-w-md grid-cols-3 gap-2 sm:gap-3">
         <Stat label="Score" value={score} />
         <Stat label="Level" value={`${level + 1} · ${difficulty.label}`} />
         <Stat
@@ -47,7 +47,7 @@ export function SnakeGame() {
             {status === "idle" && (
               <Overlay
                 title="Ready to slither?"
-                subtitle="Use arrow keys or WASD to move. Press space to pause."
+                subtitle="Tap the arrow buttons to move. Tap Pause to pause."
                 action={<PrimaryAction onClick={game.start} icon={<Play className="h-4 w-4" />} label="Start game" />}
               />
             )}
@@ -77,15 +77,15 @@ export function SnakeGame() {
         )}
       </div>
 
-      {/* Progress to next level */}
-      {status === "running" && nextThreshold !== null && (
-        <p className="text-xs text-muted-foreground" aria-live="polite">
-          {nextThreshold - score} more to reach level {level + 2}
-        </p>
-      )}
-
       {/* Controls */}
-      <div className="flex w-full max-w-md flex-col items-center gap-4">
+      <div className="flex w-full max-w-md flex-col items-center gap-3 sm:gap-4">
+        {/* Progress to next level */}
+        {status === "running" && nextThreshold !== null && (
+          <p className="text-[11px] text-muted-foreground sm:text-xs" aria-live="polite">
+            {nextThreshold - score} more to reach level {level + 2}
+          </p>
+        )}
+
         {status === "running" && (
           <div className="flex gap-2">
             <Button variant="secondary" size="sm" onClick={game.togglePause} className="gap-2">
@@ -98,28 +98,26 @@ export function SnakeGame() {
           </div>
         )}
 
-        {/* On-screen D-pad for touch devices */}
-        <div className="grid grid-cols-3 grid-rows-3 gap-2" aria-label="Direction controls">
+        {/* On-screen D-pad */}
+        <div className="grid grid-cols-3 grid-rows-3 gap-1.5 sm:gap-2" aria-label="Direction controls">
           <span />
           <DirButton dir="up" onPress={game.changeDirection}>
-            <ArrowUp className="h-5 w-5" />
+            <ArrowUp className="h-7 w-7 sm:h-6 sm:w-6" />
           </DirButton>
           <span />
           <DirButton dir="left" onPress={game.changeDirection}>
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-7 w-7 sm:h-6 sm:w-6" />
           </DirButton>
           <span />
           <DirButton dir="right" onPress={game.changeDirection}>
-            <ArrowRight className="h-5 w-5" />
+            <ArrowRight className="h-7 w-7 sm:h-6 sm:w-6" />
           </DirButton>
           <span />
           <DirButton dir="down" onPress={game.changeDirection}>
-            <ArrowDown className="h-5 w-5" />
+            <ArrowDown className="h-7 w-7 sm:h-6 sm:w-6" />
           </DirButton>
           <span />
         </div>
-
-
       </div>
     </main>
   )
@@ -174,9 +172,12 @@ function DirButton({
     <Button
       variant="secondary"
       size="icon"
-      className="h-14 w-14 active:scale-95"
+      className="h-16 w-16 active:scale-90 touch-manipulation sm:h-14 sm:w-14"
       aria-label={`Move ${dir}`}
-      onClick={() => onPress(dir)}
+      onPointerDown={(e) => {
+        e.preventDefault()
+        onPress(dir)
+      }}
     >
       {children}
     </Button>
