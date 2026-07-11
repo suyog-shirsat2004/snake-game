@@ -1,14 +1,40 @@
 "use client"
 
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Flashlight, FlashlightOff, Pause, Play, RotateCcw, Trophy } from "lucide-react"
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Flashlight, FlashlightOff, Pause, Play, RotateCcw, Settings, Trophy } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { GameBoard } from "./game-board"
 import { type Direction, useSnakeGame } from "./use-snake-game"
 import { useSoundEffects } from "./use-sound-effects"
+import { useCallback, useEffect, useState } from "react"
+
+type ArrowSize = "sm" | "md" | "lg"
+
+const ARROW_SIZE_KEY = "snake-arrow-size"
+
+const ARROW_SIZES: Record<ArrowSize, { btn: string; icon: string }> = {
+  sm: { btn: "h-12 w-12 sm:h-11 sm:w-11", icon: "h-5 w-5" },
+  md: { btn: "h-16 w-16 sm:h-14 sm:w-14", icon: "h-7 w-7 sm:h-6 sm:w-6" },
+  lg: { btn: "h-20 w-20 sm:h-18 sm:w-18", icon: "h-8 w-8 sm:h-7 sm:w-7" },
+}
+
+const ARROW_SIZE_LABELS: Record<ArrowSize, string> = { sm: "S", md: "M", lg: "L" }
 
 export function SnakeGame() {
   const game = useSnakeGame()
   const { status, score, highScore, level, difficulty, nextThreshold, segmentColors, foodColor, torchEnabled } = game
+
+  const [arrowSize, setArrowSize] = useState<ArrowSize>("md")
+  const [settingsOpen, setSettingsOpen] = useState(false)
+
+  useEffect(() => {
+    const stored = localStorage.getItem(ARROW_SIZE_KEY) as ArrowSize | null
+    if (stored && ARROW_SIZES[stored]) setArrowSize(stored)
+  }, [])
+
+  const changeArrowSize = useCallback((size: ArrowSize) => {
+    setArrowSize(size)
+    localStorage.setItem(ARROW_SIZE_KEY, size)
+  }, [])
 
   useSoundEffects(status, score, level)
 
@@ -95,26 +121,48 @@ export function SnakeGame() {
               {torchEnabled ? <FlashlightOff className="h-4 w-4" /> : <Flashlight className="h-4 w-4" />}
               {torchEnabled ? "Torch Off" : "Torch"}
             </Button>
+            <Button variant="secondary" size="sm" onClick={() => setSettingsOpen((p) => !p)} className="gap-2">
+              <Settings className="h-4 w-4" /> Settings
+            </Button>
+          </div>
+        )}
+
+        {settingsOpen && (
+          <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2">
+            <span className="text-xs text-muted-foreground">Arrows</span>
+            <div className="flex gap-1">
+              {(["sm", "md", "lg"] as ArrowSize[]).map((s) => (
+                <Button
+                  key={s}
+                  variant={arrowSize === s ? "default" : "secondary"}
+                  size="sm"
+                  className="h-7 w-7 p-0 text-xs"
+                  onClick={() => changeArrowSize(s)}
+                >
+                  {ARROW_SIZE_LABELS[s]}
+                </Button>
+              ))}
+            </div>
           </div>
         )}
 
         {/* On-screen D-pad */}
         <div className="grid grid-cols-3 grid-rows-3 gap-1.5 sm:gap-2" aria-label="Direction controls">
           <span />
-          <DirButton dir="up" onPress={game.changeDirection}>
-            <ArrowUp className="h-7 w-7 sm:h-6 sm:w-6" />
+          <DirButton dir="up" onPress={game.changeDirection} size={arrowSize}>
+            <ArrowUp />
           </DirButton>
           <span />
-          <DirButton dir="left" onPress={game.changeDirection}>
-            <ArrowLeft className="h-7 w-7 sm:h-6 sm:w-6" />
+          <DirButton dir="left" onPress={game.changeDirection} size={arrowSize}>
+            <ArrowLeft />
           </DirButton>
           <span />
-          <DirButton dir="right" onPress={game.changeDirection}>
-            <ArrowRight className="h-7 w-7 sm:h-6 sm:w-6" />
+          <DirButton dir="right" onPress={game.changeDirection} size={arrowSize}>
+            <ArrowRight />
           </DirButton>
           <span />
-          <DirButton dir="down" onPress={game.changeDirection}>
-            <ArrowDown className="h-7 w-7 sm:h-6 sm:w-6" />
+          <DirButton dir="down" onPress={game.changeDirection} size={arrowSize}>
+            <ArrowDown />
           </DirButton>
           <span />
         </div>
@@ -162,24 +210,27 @@ function PrimaryAction({ onClick, icon, label }: { onClick: () => void; icon: Re
 function DirButton({
   dir,
   onPress,
+  size,
   children,
 }: {
   dir: Direction
   onPress: (d: Direction) => void
+  size: ArrowSize
   children: React.ReactNode
 }) {
+  const dims = ARROW_SIZES[size]
   return (
     <Button
       variant="secondary"
       size="icon"
-      className="h-16 w-16 active:scale-90 touch-manipulation sm:h-14 sm:w-14"
+      className={`${dims.btn} active:scale-90 touch-manipulation`}
       aria-label={`Move ${dir}`}
       onPointerDown={(e) => {
         e.preventDefault()
         onPress(dir)
       }}
     >
-      {children}
+      <span className={dims.icon}>{children}</span>
     </Button>
   )
 }
