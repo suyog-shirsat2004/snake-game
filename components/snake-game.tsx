@@ -99,7 +99,7 @@ export function SnakeGame() {
         )}
 
         {/* On-screen D-pad for touch devices */}
-        <div className="grid grid-cols-3 grid-rows-3 gap-2 sm:hidden" aria-label="Direction controls">
+        <div className="grid grid-cols-3 grid-rows-3 gap-2" aria-label="Direction controls">
           <span />
           <DirButton dir="up" onPress={game.changeDirection}>
             <ArrowUp className="h-5 w-5" />
@@ -119,9 +119,7 @@ export function SnakeGame() {
           <span />
         </div>
 
-        <p className="hidden text-center text-xs text-muted-foreground sm:block">
-          Arrow keys / WASD to move · Space to pause or restart
-        </p>
+
       </div>
     </main>
   )
