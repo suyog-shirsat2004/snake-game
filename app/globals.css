@@ -160,10 +160,11 @@
   * {
     @apply border-border outline-ring/50;
   }
-  html {
+  html, body {
+    @apply h-full;
     @apply font-sans;
     overflow-y: auto;
-    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
   }
   body {
     @apply bg-background text-foreground;
