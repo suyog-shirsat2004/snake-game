@@ -39,15 +39,7 @@ export function SnakeGame() {
   useSoundEffects(status, score, level)
 
   return (
-    <main className="flex min-h-dvh flex-col items-center gap-3 overflow-y-auto p-3 sm:justify-between sm:gap-6 sm:p-4">
-      <header className="hidden text-center sm:block">
-        <h1 className="text-balance font-mono text-2xl font-bold tracking-tight text-primary sm:text-4xl">
-          Snake
-        </h1>
-        <p className="mt-1 text-pretty text-xs text-muted-foreground sm:text-sm">
-          Eat the glowing food, grow longer, and don&apos;t bite yourself.
-        </p>
-      </header>
+    <main className="flex flex-col items-center gap-3 p-3 sm:gap-6 sm:p-4">
 
       {/* Stat row */}
       <div className="grid w-full max-w-md grid-cols-3 gap-2 sm:gap-3">
