@@ -1,8 +1,10 @@
+const isProd = process.env.NODE_ENV === 'production'
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
-  distDir: 'docs',
-  basePath: '/snake-game',
+  output: isProd ? 'export' : undefined,
+  distDir: isProd ? 'docs' : undefined,
+  basePath: isProd ? '/snake-game' : undefined,
   typescript: {
     ignoreBuildErrors: true,
   },
