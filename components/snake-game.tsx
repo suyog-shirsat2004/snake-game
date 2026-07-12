@@ -39,7 +39,7 @@ export function SnakeGame() {
   useSoundEffects(status, score, level)
 
   return (
-    <main className="h-dvh w-full overflow-y-auto overflow-x-hidden flex flex-col items-center gap-3 p-3 sm:gap-6 sm:p-4">
+    <main className="w-full max-w-md mx-auto flex flex-col items-center gap-3 p-3 pb-6 sm:gap-6 sm:p-4 sm:pb-8">
 
       {/* Stat row */}
       <div className="grid w-full max-w-md grid-cols-3 gap-2 sm:gap-3">

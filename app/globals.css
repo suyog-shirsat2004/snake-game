@@ -160,15 +160,13 @@
   * {
     @apply border-border outline-ring/50;
   }
-  html, body {
-    @apply h-full;
+  html {
     @apply font-sans;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground min-h-dvh;
     -webkit-tap-highlight-color: transparent;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
