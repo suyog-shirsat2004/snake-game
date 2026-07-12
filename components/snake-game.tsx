@@ -39,7 +39,7 @@ export function SnakeGame() {
   useSoundEffects(status, score, level)
 
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-between gap-3 p-3 sm:gap-6 sm:p-4">
+    <main className="flex min-h-dvh flex-col items-center justify-between gap-3 overflow-y-auto p-3 sm:gap-6 sm:p-4">
       <header className="text-center">
         <h1 className="text-balance font-mono text-2xl font-bold tracking-tight text-primary sm:text-4xl">
           Snake

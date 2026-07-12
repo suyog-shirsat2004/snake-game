@@ -160,13 +160,14 @@
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-  }
   html {
     @apply font-sans;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+  body {
+    @apply bg-background text-foreground;
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
