@@ -12,9 +12,9 @@ type ArrowSize = "sm" | "md" | "lg"
 const ARROW_SIZE_KEY = "snake-arrow-size"
 
 const ARROW_SIZES: Record<ArrowSize, { btn: string; icon: string }> = {
-  sm: { btn: "h-12 w-12 sm:h-11 sm:w-11", icon: "h-5 w-5" },
-  md: { btn: "h-16 w-16 sm:h-14 sm:w-14", icon: "h-7 w-7 sm:h-6 sm:w-6" },
-  lg: { btn: "h-20 w-20 sm:h-18 sm:w-18", icon: "h-8 w-8 sm:h-7 sm:w-7" },
+  sm: { btn: "h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14", icon: "h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" },
+  md: { btn: "h-14 w-14 sm:h-16 sm:w-16 lg:h-18 lg:w-18", icon: "h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8" },
+  lg: { btn: "h-18 w-18 sm:h-20 sm:w-20 lg:h-22 lg:w-22", icon: "h-7 w-7 sm:h-8 sm:w-8 lg:h-9 lg:w-9" },
 }
 
 const ARROW_SIZE_LABELS: Record<ArrowSize, string> = { sm: "S", md: "M", lg: "L" }
@@ -39,108 +39,112 @@ export function SnakeGame() {
   useSoundEffects(status, score, level)
 
   return (
-    <main className="h-dvh w-full flex flex-col items-center gap-2 p-3 sm:gap-4 sm:p-4">
+    <main className="h-dvh w-full flex flex-col items-center gap-2 p-3 sm:gap-3 sm:p-4 lg:flex-row lg:justify-center lg:items-center lg:gap-8">
+      {/* Left column: stats + game board */}
+      <div className="flex flex-col items-center gap-2 sm:gap-3 w-full max-w-md lg:max-w-lg lg:h-full lg:justify-center">
+        {/* Stat row */}
+        <div className="w-full grid grid-cols-3 gap-2 shrink-0">
+          <Stat label="Score" value={score} />
+          <Stat label="Level" value={`${level + 1} · ${difficulty.label}`} />
+          <Stat
+            label="Best"
+            value={
+              <span className="inline-flex items-center gap-1">
+                <Trophy className="h-4 w-4 text-accent" aria-hidden />
+                {highScore}
+              </span>
+            }
+          />
+        </div>
 
-      {/* Stat row */}
-      <div className="w-full max-w-md grid grid-cols-3 gap-2 shrink-0">
-        <Stat label="Score" value={score} />
-        <Stat label="Level" value={`${level + 1} · ${difficulty.label}`} />
-        <Stat
-          label="Best"
-          value={
-            <span className="inline-flex items-center gap-1">
-              <Trophy className="h-4 w-4 text-accent" aria-hidden />
-              {highScore}
-            </span>
-          }
-        />
-      </div>
+        {/* Board + overlays */}
+        <div className="relative w-full flex-1 min-h-0">
+          <div className="relative h-full w-full">
+            <GameBoard snake={game.snake} food={game.food} segmentColors={segmentColors} foodColor={foodColor} speed={difficulty.speed} paused={status === "paused"} torchEnabled={torchEnabled} />
 
-      {/* Board + overlays — flex-1 fills remaining space, min-h-0 allows shrinking */}
-      <div className="relative w-full max-w-md flex-1 min-h-0">
-        <div className="relative h-full w-full">
-          <GameBoard snake={game.snake} food={game.food} segmentColors={segmentColors} foodColor={foodColor} speed={difficulty.speed} paused={status === "paused"} torchEnabled={torchEnabled} />
-
-          {status !== "running" && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-xl bg-background/80 backdrop-blur-sm">
-              {status === "idle" && (
-                <Overlay
-                  title="Ready to slither?"
-                  subtitle="Tap the arrow buttons to move. Tap Pause to pause."
-                  action={<PrimaryAction onClick={game.start} icon={<Play className="h-4 w-4" />} label="Start game" />}
-                />
-              )}
-              {status === "paused" && (
-                <Overlay
-                  title="Paused"
-                  subtitle="Take a breath."
-                  action={
-                    <PrimaryAction onClick={game.togglePause} icon={<Play className="h-4 w-4" />} label="Resume" />
-                  }
-                />
-              )}
-              {status === "over" && (
-                <Overlay
-                  title="Game Over"
-                  subtitle={
-                    score >= highScore && score > 0
-                      ? `New best score: ${score}!`
-                      : `You scored ${score}. Best is ${highScore}.`
-                  }
-                  action={
-                    <PrimaryAction onClick={game.reset} icon={<RotateCcw className="h-4 w-4" />} label="Play again" />
-                  }
-                />
-              )}
-            </div>
-          )}
+            {status !== "running" && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-xl bg-background/80 backdrop-blur-sm">
+                {status === "idle" && (
+                  <Overlay
+                    title="Ready to slither?"
+                    subtitle="Tap the arrow buttons to move. Tap Pause to pause."
+                    action={<PrimaryAction onClick={game.start} icon={<Play className="h-4 w-4" />} label="Start game" />}
+                  />
+                )}
+                {status === "paused" && (
+                  <Overlay
+                    title="Paused"
+                    subtitle="Take a breath."
+                    action={
+                      <PrimaryAction onClick={game.togglePause} icon={<Play className="h-4 w-4" />} label="Resume" />
+                    }
+                  />
+                )}
+                {status === "over" && (
+                  <Overlay
+                    title="Game Over"
+                    subtitle={
+                      score >= highScore && score > 0
+                        ? `New best score: ${score}!`
+                        : `You scored ${score}. Best is ${highScore}.`
+                    }
+                    action={
+                      <PrimaryAction onClick={game.reset} icon={<RotateCcw className="h-4 w-4" />} label="Play again" />
+                    }
+                  />
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Controls — fixed at bottom, never shrinks */}
-      <div className="flex w-full max-w-md flex-col items-center gap-2 shrink-0 sm:gap-3">
-        {/* Progress to next level */}
-        {status === "running" && nextThreshold !== null && (
-          <p className="text-[11px] text-muted-foreground sm:text-xs" aria-live="polite">
-            {nextThreshold - score} more to reach level {level + 2}
-          </p>
-        )}
+      {/* Right column (desktop) / bottom (mobile): controls + D-pad */}
+      <div className="flex flex-col items-center gap-2 shrink-0 sm:gap-3 lg:justify-center lg:gap-4 lg:w-auto">
+        {/* Progress + action buttons */}
+        <div className="flex flex-col items-center gap-2 shrink-0">
+          {status === "running" && nextThreshold !== null && (
+            <p className="text-[11px] text-muted-foreground sm:text-xs" aria-live="polite">
+              {nextThreshold - score} more to reach level {level + 2}
+            </p>
+          )}
 
-        {status === "running" && (
-          <div className="flex gap-2">
-            <Button variant="secondary" size="sm" onClick={game.togglePause} className="gap-2">
-              <Pause className="h-4 w-4" /> Pause
-            </Button>
-            <Button variant="secondary" size="sm" onClick={game.toggleTorch} className="gap-2">
-              {torchEnabled ? <FlashlightOff className="h-4 w-4" /> : <Flashlight className="h-4 w-4" />}
-              {torchEnabled ? "Torch Off" : "Torch"}
-            </Button>
-            <Button variant="secondary" size="sm" onClick={() => setSettingsOpen((p) => !p)} className="gap-2">
-              <Settings className="h-4 w-4" /> Settings
-            </Button>
-          </div>
-        )}
-
-        {settingsOpen && (
-          <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2">
-            <span className="text-xs text-muted-foreground">Arrows</span>
-            <div className="flex gap-1">
-              {(["sm", "md", "lg"] as ArrowSize[]).map((s) => (
-                <Button
-                  key={s}
-                  variant={arrowSize === s ? "default" : "secondary"}
-                  size="sm"
-                  className="h-7 w-7 p-0 text-xs"
-                  onClick={() => changeArrowSize(s)}
-                >
-                  {ARROW_SIZE_LABELS[s]}
-                </Button>
-              ))}
+          {status === "running" && (
+            <div className="flex gap-2">
+              <Button variant="secondary" size="sm" onClick={game.togglePause} className="gap-2">
+                <Pause className="h-4 w-4" /> Pause
+              </Button>
+              <Button variant="secondary" size="sm" onClick={game.toggleTorch} className="gap-2">
+                {torchEnabled ? <FlashlightOff className="h-4 w-4" /> : <Flashlight className="h-4 w-4" />}
+                {torchEnabled ? "Torch Off" : "Torch"}
+              </Button>
+              <Button variant="secondary" size="sm" onClick={() => setSettingsOpen((p) => !p)} className="gap-2">
+                <Settings className="h-4 w-4" /> Settings
+              </Button>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* On-screen D-pad */}
+          {settingsOpen && (
+            <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2">
+              <span className="text-xs text-muted-foreground">Arrows</span>
+              <div className="flex gap-1">
+                {(["sm", "md", "lg"] as ArrowSize[]).map((s) => (
+                  <Button
+                    key={s}
+                    variant={arrowSize === s ? "default" : "secondary"}
+                    size="sm"
+                    className="h-7 w-7 p-0 text-xs"
+                    onClick={() => changeArrowSize(s)}
+                  >
+                    {ARROW_SIZE_LABELS[s]}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* D-pad */}
         <div className="grid grid-cols-3 grid-rows-3 gap-1.5 sm:gap-2" aria-label="Direction controls">
           <span />
           <DirButton dir="up" onPress={game.changeDirection} size={arrowSize}>
