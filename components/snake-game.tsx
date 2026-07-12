@@ -39,10 +39,10 @@ export function SnakeGame() {
   useSoundEffects(status, score, level)
 
   return (
-    <main className="w-full max-w-md mx-auto flex flex-col items-center gap-3 p-3 pb-6 sm:gap-6 sm:p-4 sm:pb-8">
+    <main className="h-dvh w-full flex flex-col items-center gap-2 p-3 sm:gap-4 sm:p-4">
 
       {/* Stat row */}
-      <div className="grid w-full max-w-md grid-cols-3 gap-2 sm:gap-3">
+      <div className="w-full max-w-md grid grid-cols-3 gap-2 shrink-0">
         <Stat label="Score" value={score} />
         <Stat label="Level" value={`${level + 1} · ${difficulty.label}`} />
         <Stat
@@ -56,47 +56,49 @@ export function SnakeGame() {
         />
       </div>
 
-      {/* Board + overlays */}
-      <div className="relative w-full max-w-md">
-        <GameBoard snake={game.snake} food={game.food} segmentColors={segmentColors} foodColor={foodColor} speed={difficulty.speed} paused={status === "paused"} torchEnabled={torchEnabled} />
+      {/* Board + overlays — flex-1 fills remaining space, min-h-0 allows shrinking */}
+      <div className="relative w-full max-w-md flex-1 min-h-0">
+        <div className="relative h-full w-full">
+          <GameBoard snake={game.snake} food={game.food} segmentColors={segmentColors} foodColor={foodColor} speed={difficulty.speed} paused={status === "paused"} torchEnabled={torchEnabled} />
 
-        {status !== "running" && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-xl bg-background/80 backdrop-blur-sm">
-            {status === "idle" && (
-              <Overlay
-                title="Ready to slither?"
-                subtitle="Tap the arrow buttons to move. Tap Pause to pause."
-                action={<PrimaryAction onClick={game.start} icon={<Play className="h-4 w-4" />} label="Start game" />}
-              />
-            )}
-            {status === "paused" && (
-              <Overlay
-                title="Paused"
-                subtitle="Take a breath."
-                action={
-                  <PrimaryAction onClick={game.togglePause} icon={<Play className="h-4 w-4" />} label="Resume" />
-                }
-              />
-            )}
-            {status === "over" && (
-              <Overlay
-                title="Game Over"
-                subtitle={
-                  score >= highScore && score > 0
-                    ? `New best score: ${score}!`
-                    : `You scored ${score}. Best is ${highScore}.`
-                }
-                action={
-                  <PrimaryAction onClick={game.reset} icon={<RotateCcw className="h-4 w-4" />} label="Play again" />
-                }
-              />
-            )}
-          </div>
-        )}
+          {status !== "running" && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-xl bg-background/80 backdrop-blur-sm">
+              {status === "idle" && (
+                <Overlay
+                  title="Ready to slither?"
+                  subtitle="Tap the arrow buttons to move. Tap Pause to pause."
+                  action={<PrimaryAction onClick={game.start} icon={<Play className="h-4 w-4" />} label="Start game" />}
+                />
+              )}
+              {status === "paused" && (
+                <Overlay
+                  title="Paused"
+                  subtitle="Take a breath."
+                  action={
+                    <PrimaryAction onClick={game.togglePause} icon={<Play className="h-4 w-4" />} label="Resume" />
+                  }
+                />
+              )}
+              {status === "over" && (
+                <Overlay
+                  title="Game Over"
+                  subtitle={
+                    score >= highScore && score > 0
+                      ? `New best score: ${score}!`
+                      : `You scored ${score}. Best is ${highScore}.`
+                  }
+                  action={
+                    <PrimaryAction onClick={game.reset} icon={<RotateCcw className="h-4 w-4" />} label="Play again" />
+                  }
+                />
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Controls */}
-      <div className="flex w-full max-w-md flex-col items-center gap-3 sm:gap-4">
+      {/* Controls — fixed at bottom, never shrinks */}
+      <div className="flex w-full max-w-md flex-col items-center gap-2 shrink-0 sm:gap-3">
         {/* Progress to next level */}
         {status === "running" && nextThreshold !== null && (
           <p className="text-[11px] text-muted-foreground sm:text-xs" aria-live="polite">

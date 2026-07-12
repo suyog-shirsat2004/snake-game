@@ -182,7 +182,7 @@ export function GameBoard({ snake, food, segmentColors, foodColor, speed, paused
   return (
     <canvas
       ref={canvasRef}
-      className="aspect-square w-full rounded-xl border border-border bg-card shadow-2xl"
+      className="aspect-square max-h-full max-w-full rounded-xl border border-border bg-card shadow-2xl"
       role="img"
       aria-label="Snake game board"
     />
